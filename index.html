@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aura – Skincare Recommender</title>
+  <meta name="description" content="Discover a personalized skincare routine curated for your unique complexion." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Cormorant Garamond', 'serif'],
+          },
+          colors: {
+            primary: { DEFAULT: '#b07ba1', light: '#d4a8c7', dark: '#8a5c7a' },
+            background: '#faf8f6',
+            foreground: '#3d2b35',
+            muted: { DEFAULT: '#f0eae7', foreground: '#8c7a84' },
+            border: '#e8ddd8',
+            card: '#ffffff',
+            secondary: { DEFAULT: '#e8d5c4', foreground: '#5c4a3d' },
+            accent: { DEFAULT: '#c8ddc8', foreground: '#3a5c3a' },
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    :root { scroll-behavior: smooth; }
+    body { background: #faf8f6; color: #3d2b35; font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Cormorant Garamond', serif; }
+    .page { display: none; animation: fadeIn 0.4s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .progress-bar { transition: width 0.4s ease; }
+    .hero-gradient { background: linear-gradient(135deg, #f9e8f0 0%, #fdf0e8 30%, #eef4e8 60%, #f0eaf9 100%); }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(176, 123, 161, 0.15); }
+    .tag-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 500; background: #f0eae7; color: #8c7a84; }
+    .mobile-menu { display: none; }
+    .mobile-menu.open { display: flex; }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-rose-100/60">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <button onclick="navigate('home')" class="flex items-center gap-2 font-display text-2xl font-medium text-foreground">
+        <span class="text-2xl">✦</span> Aura
+      </button>
+      <div class="hidden md:flex items-center gap-8">
+        <button onclick="navigate('home')" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Home</button>
+        <button onclick="navigate('products')" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Shop All</button>
+        <button onclick="navigate('recommendations')" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Your Routine</button>
+        <button onclick="navigate('quiz')" class="px-5 py-2 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors shadow-md shadow-primary/25">Skin Quiz</button>
+      </div>
+      <button class="md:hidden p-2" onclick="document.getElementById('mobile-menu').classList.toggle('open')">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="mobile-menu" class="mobile-menu flex-col gap-2 px-4 pb-4 border-t border-border bg-white">
+    <button onclick="navigate('home'); closeMobileMenu()" class="text-left py-2 text-sm font-medium">Home</button>
+    <button onclick="navigate('products'); closeMobileMenu()" class="text-left py-2 text-sm font-medium">Shop All</button>
+    <button onclick="navigate('recommendations'); closeMobileMenu()" class="text-left py-2 text-sm font-medium">Your Routine</button>
+    <button onclick="navigate('quiz'); closeMobileMenu()" class="text-left py-2 text-sm font-medium text-primary">Skin Quiz</button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <section class="hero-gradient min-h-screen flex items-center pt-16 pb-20 relative overflow-hidden">
+    <div class="absolute top-20 left-10 w-72 h-72 rounded-full bg-pink-200/30 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 rounded-full bg-green-200/20 blur-3xl pointer-events-none"></div>
+    <div class="absolute top-40 right-40 w-48 h-48 rounded-full bg-purple-200/20 blur-2xl pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center relative z-10">
+      <div class="max-w-3xl mx-auto">
+        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur text-primary font-medium text-sm mb-8 shadow-sm border border-white/60">
+          ✦ Personalized Skincare Journey
+        </span>
+        <h1 class="font-display text-6xl md:text-8xl font-medium text-foreground mb-6 leading-[1.05]">
+          Your Skin,<br/>
+          <span class="italic text-primary">Beautifully Understood.</span>
+        </h1>
+        <p class="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+          Discover a personalized routine curated for your unique complexion. Take our 2-minute quiz and let the glow begin.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button onclick="navigate('quiz')" class="w-full sm:w-auto px-8 py-4 rounded-full bg-primary text-white text-lg font-medium shadow-xl shadow-primary/25 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
+            Find Your Routine →
+          </button>
+          <button onclick="navigate('products')" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-foreground text-lg font-medium shadow-sm hover:shadow-md border border-border/60 hover:border-primary/40 transition-all duration-300">
+            Browse Collection
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="font-display text-4xl font-medium mb-3">Know Your Skin</h2>
+        <p class="text-muted-foreground">Select your skin type for an instant personalized recommendation.</p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <button onclick="navigate('recommendations','oily')" class="card-hover bg-gradient-to-b from-amber-50 to-white p-6 rounded-3xl border border-border text-center shadow-sm">
+          <div class="text-3xl mb-3">💧</div>
+          <div class="font-display text-lg font-medium mb-1">Oily</div>
+          <div class="text-xs text-muted-foreground">Shiny, enlarged pores</div>
+        </button>
+        <button onclick="navigate('recommendations','dry')" class="card-hover bg-gradient-to-b from-blue-50 to-white p-6 rounded-3xl border border-border text-center shadow-sm">
+          <div class="text-3xl mb-3">🌿</div>
+          <div class="font-display text-lg font-medium mb-1">Dry</div>
+          <div class="text-xs text-muted-foreground">Tight, flaky, dull</div>
+        </button>
+        <button onclick="navigate('recommendations','combination')" class="card-hover bg-gradient-to-b from-purple-50 to-white p-6 rounded-3xl border border-border text-center shadow-sm">
+          <div class="text-3xl mb-3">✨</div>
+          <div class="font-display text-lg font-medium mb-1">Combination</div>
+          <div class="text-xs text-muted-foreground">Oily T-zone, dry cheeks</div>
+        </button>
+        <button onclick="navigate('recommendations','sensitive')" class="card-hover bg-gradient-to-b from-rose-50 to-white p-6 rounded-3xl border border-border text-center shadow-sm">
+          <div class="text-3xl mb-3">🌸</div>
+          <div class="font-display text-lg font-medium mb-1">Sensitive</div>
+          <div class="text-xs text-muted-foreground">Reactive, redness prone</div>
+        </button>
+        <button onclick="navigate('recommendations','normal')" class="card-hover bg-gradient-to-b from-green-50 to-white p-6 rounded-3xl border border-border text-center shadow-sm">
+          <div class="text-3xl mb-3">⭐</div>
+          <div class="font-display text-lg font-medium mb-1">Normal</div>
+          <div class="text-xs text-muted-foreground">Balanced, comfortable</div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-24 bg-background">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="font-display text-4xl font-medium mb-4">Why Aura?</h2>
+        <p class="text-muted-foreground max-w-xl mx-auto">We believe in targeted, effective, and beautifully formulated skincare for everyone.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div class="text-center reveal">
+          <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-rose-100 flex items-center justify-center text-2xl">🛡️</div>
+          <h3 class="font-display text-xl font-medium mb-3">Dermatologist Approved</h3>
+          <p class="text-muted-foreground leading-relaxed">Every recommendation is backed by science and proven ingredients.</p>
+        </div>
+        <div class="text-center reveal">
+          <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-blue-100 flex items-center justify-center text-2xl">💦</div>
+          <h3 class="font-display text-xl font-medium mb-3">Deeply Hydrating</h3>
+          <p class="text-muted-foreground leading-relaxed">We focus on protecting and restoring your natural moisture barrier.</p>
+        </div>
+        <div class="text-center reveal">
+          <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-green-100 flex items-center justify-center text-2xl">🌿</div>
+          <h3 class="font-display text-xl font-medium mb-3">Clean & Conscious</h3>
+          <p class="text-muted-foreground leading-relaxed">Cruelty-free, vegan options with no harsh hidden chemicals.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-primary text-white text-center">
+    <div class="max-w-2xl mx-auto px-4">
+      <h2 class="font-display text-5xl font-medium mb-4 italic">Ready to Glow?</h2>
+      <p class="opacity-80 mb-8 text-lg">Answer 5 quick questions and get your personalized skincare routine instantly.</p>
+      <button onclick="navigate('quiz')" class="px-10 py-4 rounded-full bg-white text-primary font-medium text-lg shadow-xl hover:-translate-y-1 transition-all duration-300">
+        Take the Free Quiz
+      </button>
+    </div>
+  </section>
+</div>
+
+<!-- QUIZ PAGE -->
+<div id="page-quiz" class="page">
+  <div class="min-h-screen pt-24 pb-12 bg-background flex flex-col">
+    <div class="max-w-2xl mx-auto px-4 w-full flex-1 flex flex-col">
+      <div class="mb-12">
+        <div class="flex justify-between text-sm font-medium text-muted-foreground mb-4">
+          <button onclick="quizBack()" id="quiz-back-btn" class="flex items-center opacity-0 hover:text-primary transition-colors">← Back</button>
+          <span id="quiz-step-label">Step 1 of 5</span>
+        </div>
+        <div class="h-2 bg-muted rounded-full overflow-hidden">
+          <div id="quiz-progress" class="h-full bg-primary progress-bar rounded-full" style="width: 20%"></div>
+        </div>
+      </div>
+      <div id="quiz-question-area" class="flex-1"></div>
+      <div class="mt-8 pt-8 border-t border-border/50">
+        <button id="quiz-next-btn" onclick="quizNext()" disabled class="w-full sm:w-auto px-8 py-4 rounded-xl bg-foreground text-white font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary transition-colors float-right">
+          Next Question →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RECOMMENDATIONS PAGE -->
+<div id="page-recommendations" class="page">
+  <div class="min-h-screen pt-16 pb-20 bg-background">
+    <div id="rec-content"></div>
+  </div>
+</div>
+
+<!-- PRODUCTS PAGE -->
+<div id="page-products" class="page">
+  <div class="min-h-screen pt-24 pb-20 bg-background">
+    <div class="bg-white border-b border-border/50 pt-12 pb-8 mb-10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="font-display text-5xl font-medium mb-4">Our Collection</h1>
+        <p class="text-muted-foreground max-w-2xl mx-auto">Explore our beautifully curated selection of efficacious, gentle, and proven skincare essentials.</p>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row gap-8">
+      <aside class="w-full md:w-64 shrink-0">
+        <div class="sticky top-28 bg-white p-6 rounded-3xl border border-border/50 shadow-sm">
+          <div class="mb-6 relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">🔍</span>
+            <input type="text" id="product-search" placeholder="Search products..." oninput="filterProducts()" class="w-full bg-muted/50 border border-border rounded-xl pl-8 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
+          </div>
+          <h3 class="font-medium flex items-center gap-2 mb-4">☰ Categories</h3>
+          <div id="category-filters" class="flex flex-col gap-2"></div>
+        </div>
+      </aside>
+      <div class="flex-1">
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SKIN_TYPES = [
+  { id:"oily", name:"Oily Skin", icon:"💧", description:"Skin that produces excess sebum, resulting in a shiny or greasy appearance.", characteristics:["Shiny or glossy appearance","Enlarged pores","Prone to blackheads and acne","Feels greasy within hours of cleansing","Makeup doesn't last long"] },
+  { id:"dry", name:"Dry Skin", icon:"🌿", description:"Skin that lacks moisture and natural oils, often feeling tight and looking dull.", characteristics:["Feels tight or uncomfortable","Flaky or rough texture","Dull, less radiant complexion","Visible fine lines","Rarely breaks out"] },
+  { id:"combination", name:"Combination Skin", icon:"✨", description:"A mix of oily areas (typically the T-zone) and dry or normal areas.", characteristics:["Oily T-zone (forehead, nose, chin)","Dry or normal cheeks","Enlarged pores in oily zones","Occasional breakouts","Skin feels different in different areas"] },
+  { id:"sensitive", name:"Sensitive Skin", icon:"🌸", description:"Skin that reacts easily to products and environmental factors.", characteristics:["Easily irritated by products or weather","Redness or flushing","Burning or stinging sensations","Prone to allergic reactions","Skin feels tight and reactive"] },
+  { id:"normal", name:"Normal Skin", icon:"⭐", description:"Well-balanced skin that is neither too oily nor too dry.", characteristics:["Smooth and even texture","Small pores","Rarely breaks out","Comfortable, not tight or greasy","Naturally radiant"] },
+];
+
+const PRODUCTS = [
+  { id:"p1", name:"Gentle Foaming Cleanser", brand:"CeraVe", category:"cleanser", description:"A lightweight, gentle foaming cleanser that removes excess oil without disrupting the skin barrier.", ingredients:["Niacinamide","Ceramides","Hyaluronic Acid","Glycerin"], suitableFor:["oily","combination","normal"], benefits:["Controls oil","Unclogs pores","Non-stripping formula","Fragrance-free"], price:15.99, rating:4.7, tags:["bestseller","fragrance-free"] },
+  { id:"p2", name:"Hydrating Cream Cleanser", brand:"La Roche-Posay", category:"cleanser", description:"A rich, creamy cleanser that removes impurities while providing intense hydration for dry skin.", ingredients:["Ceramides","Niacinamide","Glycerin","Shea Butter"], suitableFor:["dry","sensitive","normal"], benefits:["Deep hydration","Gentle cleansing","Restores barrier","Soothes irritation"], price:18.50, rating:4.8, tags:["hydrating","gentle"] },
+  { id:"p3", name:"Micellar Cleansing Water", brand:"Bioderma", category:"cleanser", description:"A gentle micellar solution that effortlessly removes makeup and impurities without rubbing.", ingredients:["Micelles","Cucumber Extract","Glycerin","Water"], suitableFor:["sensitive","dry","normal","all"], benefits:["No-rinse formula","Removes makeup","Soothes skin","Zero fragrance"], price:12.99, rating:4.6, tags:["gentle","all-skin"] },
+  { id:"p4", name:"Niacinamide 10% + Zinc Toner", brand:"Paula's Choice", category:"toner", description:"A brightening toner with 10% niacinamide to minimize pores and control sebum production.", ingredients:["10% Niacinamide","Zinc","Panthenol","Green Tea Extract"], suitableFor:["oily","combination","normal"], benefits:["Minimizes pores","Controls shine","Brightens skin","Reduces blemishes"], price:32.00, rating:4.9, tags:["pore-minimizing","cult-favorite"] },
+  { id:"p5", name:"Rose Hydrating Toner", brand:"Tatcha", category:"toner", description:"A soothing, alcohol-free toner infused with Japanese botanical extracts for lasting hydration.", ingredients:["Rose Water","Japanese Peony","Hyaluronic Acid","Sake Extract"], suitableFor:["dry","sensitive","normal"], benefits:["Deep hydration","Soothing","Prepares skin","Brightening"], price:45.00, rating:4.7, tags:["luxury","hydrating"] },
+  { id:"p6", name:"Vitamin C Brightening Serum", brand:"SkinCeuticals", category:"serum", description:"A potent 15% vitamin C serum that brightens skin and provides antioxidant protection.", ingredients:["15% L-Ascorbic Acid","Vitamin E","Ferulic Acid","Hyaluronic Acid"], suitableFor:["normal","dry","combination"], benefits:["Brightens dark spots","Antioxidant protection","Anti-aging","Evens skin tone"], price:166.00, rating:4.8, tags:["bestseller","anti-aging"] },
+  { id:"p7", name:"Retinol 0.3% Serum", brand:"The Ordinary", category:"serum", description:"A gentle retinol formula to smooth fine lines, improve texture, and support cell turnover.", ingredients:["0.3% Retinol","Squalane","Jojoba Seed Oil","Vitamin E"], suitableFor:["normal","combination","oily"], benefits:["Reduces fine lines","Improves texture","Unclogs pores","Firms skin"], price:8.00, rating:4.5, tags:["affordable","anti-aging"] },
+  { id:"p8", name:"Hyaluronic Acid Serum", brand:"Neutrogena", category:"serum", description:"Multi-depth hydration serum with three molecular weights of hyaluronic acid.", ingredients:["3x Hyaluronic Acid","Glycerin","Panthenol","Vitamin B5"], suitableFor:["dry","sensitive","normal","all"], benefits:["Deep hydration","Plumps skin","Smooths texture","Lightweight"], price:24.99, rating:4.6, tags:["hydrating","all-skin"] },
+  { id:"p9", name:"Centella Calming Serum", brand:"Dr. Jart+", category:"serum", description:"A soothing serum featuring centella asiatica to calm redness and strengthen the skin barrier.", ingredients:["Centella Asiatica","Madecassoside","Allantoin","Panthenol"], suitableFor:["sensitive","dry","normal"], benefits:["Calms redness","Soothes irritation","Repairs barrier","Anti-inflammatory"], price:52.00, rating:4.7, tags:["calming","barrier-repair"] },
+  { id:"p10", name:"Oil-Free Gel Moisturizer", brand:"Neutrogena", category:"moisturizer", description:"A lightweight, oil-free gel moisturizer that hydrates without clogging pores.", ingredients:["Hyaluronic Acid","Glycerin","Dimethicone","Niacinamide"], suitableFor:["oily","combination","normal"], benefits:["Oil-free hydration","Non-comedogenic","Mattifying","Lightweight"], price:19.99, rating:4.6, tags:["oil-free","lightweight"] },
+  { id:"p11", name:"Ultra Rich Barrier Cream", brand:"Laneige", category:"moisturizer", description:"A deeply nourishing cream with ceramides and fatty acids to restore dry, dehydrated skin.", ingredients:["Ceramides","Omega Fatty Acids","Shea Butter","Hyaluronic Acid"], suitableFor:["dry","sensitive"], benefits:["Intense hydration","Barrier repair","Reduces tightness","Nourishing"], price:38.00, rating:4.8, tags:["rich","hydrating"] },
+  { id:"p12", name:"Daily Defense Moisturizer SPF 30", brand:"EltaMD", category:"sunscreen", description:"A lightweight daily moisturizer with broad-spectrum SPF 30 for everyday UV protection.", ingredients:["Zinc Oxide 9%","Octinoxate","Niacinamide","Hyaluronic Acid"], suitableFor:["normal","combination","sensitive","all"], benefits:["UV protection","Hydrating","Lightweight","Non-greasy"], price:42.00, rating:4.9, tags:["spf","daily","bestseller"] },
+  { id:"p13", name:"UV Clear Broad-Spectrum SPF 46", brand:"EltaMD", category:"sunscreen", description:"Lightweight, oil-free sunscreen ideal for acne-prone and oily skin types.", ingredients:["Zinc Oxide 9%","Octinoxate","Niacinamide","Hyaluronic Acid"], suitableFor:["oily","combination"], benefits:["Oil control","SPF 46","Reduces breakouts","Calms skin"], price:39.00, rating:4.9, tags:["spf","oil-free"] },
+  { id:"p14", name:"BHA Liquid Exfoliant 2%", brand:"Paula's Choice", category:"exfoliator", description:"A BHA liquid exfoliant that unclogs pores and smooths skin texture without abrasive scrubbing.", ingredients:["2% Salicylic Acid","Green Tea","Methylpropanediol"], suitableFor:["oily","combination","normal"], benefits:["Unclogs pores","Smooths texture","Reduces blackheads","Brightens"], price:35.00, rating:4.8, tags:["bha","cult-favorite"] },
+  { id:"p15", name:"Glow Tonic AHA Exfoliator", brand:"Pixi", category:"exfoliator", description:"A gentle AHA toner with 5% glycolic acid to brighten and smooth without irritation.", ingredients:["5% Glycolic Acid","Aloe Vera","Ginseng","Rose Extract"], suitableFor:["dry","normal","sensitive"], benefits:["Gentle exfoliation","Brightens skin","Smooths texture","Hydrating"], price:29.00, rating:4.5, tags:["gentle","aha"] },
+  { id:"p16", name:"Peptide Eye Cream", brand:"Olay", category:"eye cream", description:"A firming eye cream with peptides and vitamin C to reduce dark circles and puffiness.", ingredients:["Peptides","Vitamin C","Niacinamide","Caffeine"], suitableFor:["normal","combination","dry","all"], benefits:["Reduces dark circles","Firms skin","Hydrating","Brightening"], price:28.99, rating:4.4, tags:["anti-aging","firming"] },
+  { id:"p17", name:"Soothing Eye Gel", brand:"Clinique", category:"eye cream", description:"A cooling, lightweight gel that instantly soothes puffiness and hydrates the eye area.", ingredients:["Aloe Vera","Cucumber Extract","Hyaluronic Acid","Caffeine"], suitableFor:["sensitive","oily","combination"], benefits:["Reduces puffiness","Cooling effect","Lightweight","Hydrating"], price:35.00, rating:4.5, tags:["soothing","cooling"] },
+  { id:"p18", name:"Kaolin Clay Purifying Mask", brand:"Fresh", category:"mask", description:"A deep-cleansing clay mask that draws out impurities and minimizes pores.", ingredients:["Kaolin Clay","Bentonite","Camphor","Lemon Extract"], suitableFor:["oily","combination"], benefits:["Deep cleansing","Pore minimizing","Oil control","Detoxifying"], price:45.00, rating:4.6, tags:["detox","weekly-use"] },
+  { id:"p19", name:"Hydrating Sheet Mask", brand:"Skinfood", category:"mask", description:"An intensely hydrating sheet mask with rice water extract to plump and brighten skin.", ingredients:["Rice Water","Hyaluronic Acid","Niacinamide","Centella Asiatica"], suitableFor:["dry","sensitive","normal","all"], benefits:["Intense hydration","Brightening","Plumping","Soothing"], price:3.99, rating:4.5, tags:["affordable","all-skin"] },
+];
+
+const TIPS = {
+  oily:["Use a gentle foaming cleanser twice daily","Don't skip moisturizer — opt for oil-free, gel-based formulas","Use clay masks 1-2 times per week to control shine","Always use non-comedogenic products"],
+  dry:["Cleanse with a hydrating, non-stripping cleanser","Apply moisturizer while skin is still slightly damp","Look for ingredients like hyaluronic acid, ceramides, and glycerin","Use a humidifier at night to boost moisture"],
+  combination:["Use different products on different zones if needed","Focus hydration on dry areas, oil control on T-zone","Avoid alcohol-based toners that strip moisture from dry areas","Balance is key — lightweight hydrating products work best"],
+  sensitive:["Always patch test new products before full application","Avoid fragrances, alcohol, and harsh exfoliants","Opt for gentle, fragrance-free formulas with minimal ingredients","Introduce new products one at a time"],
+  normal:["Maintain your routine consistently for best results","Use SPF daily to preserve your naturally balanced skin","Antioxidant serums help protect against environmental damage","Exfoliate 1-2 times per week for radiant skin"],
+};
+
+const QUIZ_QUESTIONS = [
+  { id:"q1", question:"How does your skin feel midday?", options:[{id:"a",label:"Tight, dry, or flaky",desc:"It craves moisture by noon."},{id:"b",label:"Comfortable and balanced",desc:"No major issues to speak of."},{id:"c",label:"Slightly oily in some areas",desc:"T-zone can get shiny."},{id:"d",label:"Very oily and shiny everywhere",desc:"You reach for blotting papers often."}] },
+  { id:"q2", question:"How do you react after cleansing?", options:[{id:"a",label:"Very tight — I need cream immediately",desc:"Definitely dry skin territory."},{id:"b",label:"Balanced and comfortable",desc:"Skin feels refreshed and normal."},{id:"c",label:"Already getting oily",desc:"Sebum production kicks in fast."},{id:"d",label:"Different zones react differently",desc:"T-zone oily, cheeks dry."}] },
+  { id:"q3", question:"How does your skin react to new products?", options:[{id:"a",label:"Often gets red, itchy, or irritated",desc:"I'm very careful with new products."},{id:"b",label:"Sometimes feels tight or dry",desc:"Needs extra moisturization."},{id:"c",label:"Usually fine, rarely reacts",desc:"My skin is pretty stable."},{id:"d",label:"Can break out if products are too heavy",desc:"Pores clog easily."}] },
+  { id:"q4", question:"What does your T-zone look like by the end of the day?", options:[{id:"a",label:"Very dry or flaky",desc:"No oil anywhere."},{id:"b",label:"Just right — no shine or dryness",desc:"Naturally balanced."},{id:"c",label:"Slightly shiny",desc:"A little glow."},{id:"d",label:"Oily T-zone, rest of face dry",desc:"Classic combination pattern."}] },
+  { id:"q5", question:"What is your biggest skin concern?", options:[{id:"a",label:"Redness and sensitivity",desc:"My skin reacts to almost everything."},{id:"b",label:"Dryness and flaking",desc:"It constantly needs moisture."},{id:"c",label:"No major concerns",desc:"Skin is healthy and balanced."},{id:"d",label:"Shine, blackheads, or breakouts",desc:"Oiliness is my main issue."}] },
+];
+
+const QUIZ_SCORING = {
+  q1:{a:{dry:3},b:{normal:2,combination:1},c:{oily:2,combination:2},d:{oily:3}},
+  q2:{a:{dry:3},b:{normal:2},c:{oily:2},d:{combination:3}},
+  q3:{a:{sensitive:3},b:{dry:2},c:{normal:2},d:{oily:2}},
+  q4:{a:{dry:3},b:{normal:2},c:{oily:2,combination:1},d:{combination:3}},
+  q5:{a:{sensitive:3},b:{dry:2},c:{normal:3},d:{oily:1}},
+};
+
+let quizStep=0, quizAnswers={}, selectedCategory='All';
+
+function navigate(page, skinTypeId=null) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  window.scrollTo(0,0);
+  if(page==='quiz') initQuiz();
+  if(page==='recommendations') initRecommendations(skinTypeId);
+  if(page==='products') initProducts();
+}
+
+function closeMobileMenu() { document.getElementById('mobile-menu').classList.remove('open'); }
+
+function initQuiz() { quizStep=0; quizAnswers={}; renderQuizStep(); }
+
+function renderQuizStep() {
+  const q=QUIZ_QUESTIONS[quizStep], total=QUIZ_QUESTIONS.length;
+  document.getElementById('quiz-step-label').textContent=`Step ${quizStep+1} of ${total}`;
+  document.getElementById('quiz-progress').style.width=`${Math.round(((quizStep+1)/total)*100)}%`;
+  document.getElementById('quiz-back-btn').style.opacity=quizStep===0?'0':'1';
+  const isLast=quizStep===total-1;
+  const btn=document.getElementById('quiz-next-btn');
+  btn.textContent=isLast?'Reveal My Routine ✨':'Next Question →';
+  btn.disabled=!quizAnswers[q.id];
+  document.getElementById('quiz-question-area').innerHTML=`
+    <h2 class="font-display text-3xl md:text-4xl text-foreground mb-8">${q.question}</h2>
+    <div class="space-y-4">
+      ${q.options.map(opt=>`
+        <button onclick="quizSelect('${q.id}','${opt.id}')"
+          class="w-full text-left p-5 rounded-2xl border-2 transition-all duration-200 ${quizAnswers[q.id]===opt.id?'border-primary bg-rose-50 shadow-md':'border-border bg-white hover:border-primary/40 hover:bg-muted/30'}">
+          <div class="font-medium text-lg text-foreground mb-1">${opt.label}</div>
+          <div class="text-sm text-muted-foreground">${opt.desc}</div>
+        </button>
+      `).join('')}
+    </div>`;
+}
+
+function quizSelect(qId, aId) { quizAnswers[qId]=aId; renderQuizStep(); }
+function quizBack() { if(quizStep>0){quizStep--; renderQuizStep();} }
+function quizNext() {
+  if(!quizAnswers[QUIZ_QUESTIONS[quizStep].id]) return;
+  if(quizStep<QUIZ_QUESTIONS.length-1){quizStep++; renderQuizStep();}
+  else { navigate('recommendations', computeQuizResult()); }
+}
+
+function computeQuizResult() {
+  const scores={oily:0,dry:0,combination:0,sensitive:0,normal:0};
+  for(const [qId,aId] of Object.entries(quizAnswers)){
+    const s=QUIZ_SCORING[qId]?.[aId]||{};
+    for(const [t,p] of Object.entries(s)) scores[t]+=p;
+  }
+  return Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
+}
+
+function initRecommendations(skinTypeId) {
+  const container=document.getElementById('rec-content');
+  if(!skinTypeId){container.innerHTML=renderSkinTypeSelection(); return;}
+  const skinType=SKIN_TYPES.find(st=>st.id===skinTypeId);
+  const products=PRODUCTS.filter(p=>p.suitableFor.includes(skinTypeId)||p.suitableFor.includes('all'));
+  const tips=TIPS[skinTypeId]||[];
+  const categories=[
+    {cat:'cleanser',title:'Cleanse',desc:'Start with a gentle cleanser to remove impurities and prep your skin.',time:'both'},
+    {cat:'toner',title:'Tone',desc:"Balance your skin's pH and prep it for the next steps.",time:'both'},
+    {cat:'serum',title:'Serum',desc:'Apply targeted serums to address specific skin concerns.',time:'both'},
+    {cat:'eye cream',title:'Eye Care',desc:'Gently pat eye cream to address the delicate under-eye area.',time:'both'},
+    {cat:'moisturizer',title:'Moisturize',desc:'Lock in hydration and strengthen your skin barrier.',time:'both'},
+    {cat:'sunscreen',title:'Sun Protection',desc:'Protect your skin from UV damage (AM only).',time:'morning'},
+    {cat:'exfoliator',title:'Exfoliate',desc:'Remove dead skin cells for a radiant complexion (2-3x per week, PM).',time:'evening'},
+  ];
+  const routineSteps=categories.map(c=>({...c,products:products.filter(p=>p.category===c.cat)})).filter(s=>s.products.length>0);
+  container.innerHTML=`
+    <div class="bg-primary/5 py-16 border-b border-primary/10 mb-12 mt-16">
+      <div class="max-w-7xl mx-auto px-4 text-center">
+        <div class="text-4xl mb-4">${skinType?.icon||'✨'}</div>
+        <h1 class="font-display text-4xl md:text-5xl text-foreground mb-4">Your Personalized Routine</h1>
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">Curated for <strong>${skinType?.name||'your skin'}</strong> — a step-by-step regimen to help you achieve your healthiest glow.</p>
+        <div class="mt-6 inline-flex gap-3">
+          <button onclick="navigate('quiz')" class="px-5 py-2 rounded-full border border-primary text-primary text-sm font-medium hover:bg-primary hover:text-white transition-colors">Retake Quiz</button>
+          <button onclick="navigate('recommendations')" class="px-5 py-2 rounded-full border border-border text-foreground text-sm font-medium hover:border-primary/40 transition-colors">Change Skin Type</button>
+        </div>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      ${tips.length?`<div class="mb-16 bg-white p-8 rounded-3xl border border-border shadow-sm">
+        <h3 class="font-display text-xl font-medium mb-4">✦ Expert Tips for ${skinType?.name}</h3>
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">${tips.map(t=>`<li class="flex items-start gap-3 text-muted-foreground"><span class="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0 inline-block"></span><span class="leading-relaxed">${t}</span></li>`).join('')}</ul>
+      </div>`:''}
+      <div class="flex justify-center mb-12">
+        <div class="bg-muted p-1 rounded-full inline-flex">
+          <button id="tab-morning" onclick="switchTab('morning')" class="px-8 py-3 rounded-full text-sm font-medium flex items-center gap-2 transition-all duration-300 bg-white text-foreground shadow-sm">☀️ Morning</button>
+          <button id="tab-evening" onclick="switchTab('evening')" class="px-8 py-3 rounded-full text-sm font-medium flex items-center gap-2 transition-all duration-300 text-muted-foreground hover:text-foreground">🌙 Evening</button>
+        </div>
+      </div>
+      <div id="routine-morning" class="max-w-4xl mx-auto space-y-10">
+        ${routineSteps.filter(s=>s.time==='both'||s.time==='morning').map((s,i)=>routineStepHtml(s,i)).join('')}
+      </div>
+      <div id="routine-evening" class="max-w-4xl mx-auto space-y-10 hidden">
+        ${routineSteps.filter(s=>s.time==='both'||s.time==='evening').map((s,i)=>routineStepHtml(s,i)).join('')}
+      </div>
+    </div>`;
+}
+
+function routineStepHtml(s, i) {
+  return `<div class="relative flex flex-col sm:flex-row gap-6 md:gap-10">
+    <div class="hidden sm:flex shrink-0 w-14 h-14 rounded-full bg-primary text-white items-center justify-center text-xl font-display font-medium shadow-md">${i+1}</div>
+    <div class="flex-1 bg-white p-6 md:p-8 rounded-3xl border border-border shadow-sm">
+      <div class="sm:hidden w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-lg font-display mb-4">${i+1}</div>
+      <h3 class="font-display text-2xl mb-2">${s.title}</h3>
+      <p class="text-muted-foreground mb-6">${s.desc}</p>
+      ${s.products.length?`<div class="pt-5 border-t border-border/50"><h4 class="text-xs font-semibold text-foreground uppercase tracking-wider mb-4">Recommended Products</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-4">${s.products.slice(0,4).map(renderProductCard).join('')}</div></div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderSkinTypeSelection() {
+  return `<div class="min-h-screen pt-32 pb-20 px-4 max-w-5xl mx-auto">
+    <div class="text-center mb-12">
+      <h1 class="font-display text-4xl mb-4">Select Your Skin Type</h1>
+      <p class="text-muted-foreground text-lg">Choose below for instant recommendations, or <button onclick="navigate('quiz')" class="text-primary hover:underline">take our quiz</button> if you're unsure.</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      ${SKIN_TYPES.map(st=>`<button onclick="navigate('recommendations','${st.id}')" class="card-hover bg-white p-6 rounded-3xl border border-border shadow-sm text-center block">
+        <div class="text-4xl mb-4">${st.icon}</div>
+        <h3 class="font-display text-xl font-medium mb-2">${st.name}</h3>
+        <p class="text-sm text-muted-foreground mb-4">${st.description}</p>
+        <div class="flex flex-wrap justify-center gap-1">${st.characteristics.slice(0,3).map(c=>`<span class="tag-pill">${c}</span>`).join('')}</div>
+      </button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function switchTab(tab) {
+  document.getElementById('routine-morning').classList.toggle('hidden', tab!=='morning');
+  document.getElementById('routine-evening').classList.toggle('hidden', tab!=='evening');
+  const on='px-8 py-3 rounded-full text-sm font-medium flex items-center gap-2 transition-all duration-300 bg-white text-foreground shadow-sm';
+  const off='px-8 py-3 rounded-full text-sm font-medium flex items-center gap-2 transition-all duration-300 text-muted-foreground hover:text-foreground';
+  document.getElementById('tab-morning').className=tab==='morning'?on:off;
+  document.getElementById('tab-evening').className=tab==='evening'?on:off;
+}
+
+function initProducts() {
+  const cats=['All',...Array.from(new Set(PRODUCTS.map(p=>p.category))).sort()];
+  selectedCategory='All';
+  document.getElementById('product-search').value='';
+  document.getElementById('category-filters').innerHTML=cats.map(cat=>`
+    <button onclick="selectCategory('${cat}')" id="cat-btn-${cat.replace(' ','-')}"
+      class="text-left px-3 py-2 rounded-lg text-sm transition-colors ${cat===selectedCategory?'bg-primary/10 text-primary font-medium':'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}">
+      ${cat.charAt(0).toUpperCase()+cat.slice(1)}
+    </button>`).join('');
+  filterProducts();
+}
+
+function selectCategory(cat) {
+  selectedCategory=cat;
+  document.querySelectorAll('[id^="cat-btn-"]').forEach(b=>{
+    const isSel=b.id==='cat-btn-'+cat.replace(' ','-');
+    b.className='text-left px-3 py-2 rounded-lg text-sm transition-colors '+(isSel?'bg-primary/10 text-primary font-medium':'text-muted-foreground hover:bg-muted/50 hover:text-foreground');
+  });
+  filterProducts();
+}
+
+function filterProducts() {
+  const q=(document.getElementById('product-search')?.value||'').toLowerCase();
+  const filtered=PRODUCTS.filter(p=>(selectedCategory==='All'||p.category===selectedCategory)&&(p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)));
+  const grid=document.getElementById('products-grid');
+  grid.innerHTML=filtered.length?filtered.map(renderProductCard).join(''):`<div class="col-span-3 text-center py-20 text-muted-foreground">No products found. <button onclick="selectCategory('All')" class="text-primary hover:underline">Clear filters</button></div>`;
+}
+
+function renderProductCard(p) {
+  const stars='★'.repeat(Math.round(p.rating))+'☆'.repeat(5-Math.round(p.rating));
+  const catColors={cleanser:'bg-blue-50 text-blue-700',toner:'bg-purple-50 text-purple-700',serum:'bg-amber-50 text-amber-700',moisturizer:'bg-green-50 text-green-700',sunscreen:'bg-orange-50 text-orange-700',exfoliator:'bg-red-50 text-red-700','eye cream':'bg-indigo-50 text-indigo-700',mask:'bg-pink-50 text-pink-700'};
+  const catEmoji={cleanser:'🧴',toner:'💧',serum:'✨',moisturizer:'🌿',sunscreen:'☀️',exfoliator:'🌸','eye cream':'👁️',mask:'🧖‍♀️'};
+  return `<div class="card-hover bg-white rounded-3xl border border-border shadow-sm overflow-hidden flex flex-col">
+    <div class="h-32 bg-gradient-to-br from-rose-50 via-purple-50 to-amber-50 flex items-center justify-center text-5xl">${catEmoji[p.category]||'🧴'}</div>
+    <div class="p-4 flex flex-col flex-1">
+      <div class="flex items-start justify-between mb-1">
+        <span class="text-xs font-semibold uppercase px-2 py-0.5 rounded-md ${catColors[p.category]||'bg-gray-50 text-gray-700'}">${p.category}</span>
+        <span class="text-xs font-bold text-foreground">$${p.price.toFixed(2)}</span>
+      </div>
+      <h3 class="font-display text-lg font-medium mt-2 mb-0.5 leading-tight">${p.name}</h3>
+      <p class="text-xs text-muted-foreground mb-2">${p.brand}</p>
+      <p class="text-sm text-muted-foreground mb-3 leading-relaxed flex-1">${p.description}</p>
+      <div class="flex flex-wrap gap-1 mb-3">${p.benefits.slice(0,3).map(b=>`<span class="tag-pill">${b}</s **...**
+
+_This response is too long to display in full._
